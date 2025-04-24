@@ -34,9 +34,7 @@ const App: React.FC = () => {
           </Route>
           
           <Route path="/home">
-            <DashboardLayout>
-              <Home />
-            </DashboardLayout>
+            <Redirect to="/" />
           </Route>
           
           <Route path="/content-library">

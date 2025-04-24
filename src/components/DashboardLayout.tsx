@@ -21,8 +21,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     
     if (path === '/' || path === '/dashboard') {
       setCurrentSection('dashboard');
-    } else if (path === '/home') {
-      setCurrentSection('home');
     } else if (path === '/content-library') {
       setCurrentSection('content-library');
     } else if (path === '/analytics') {

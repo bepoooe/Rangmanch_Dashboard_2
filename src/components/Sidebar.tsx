@@ -70,7 +70,6 @@ const StyledAnchor = styled('a')(({ theme }) => ({
 // Main navigation items
 const navigationItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, id: 'dashboard', path: '/' },
-  { text: 'Home', icon: <HomeIcon />, id: 'home', path: '/home' },
   { text: 'Content Library', icon: <ContentLibraryIcon />, id: 'content-library', path: '/content-library' },
   { text: 'Analytics', icon: <AnalyticsIcon />, id: 'analytics', path: '/analytics' },
   { text: 'Audience Insights', icon: <AudienceIcon />, id: 'audience-insights', path: '/audience-insights' },
