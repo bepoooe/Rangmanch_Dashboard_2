@@ -31,6 +31,8 @@ const Dashboard: React.FC = () => {
           onClick={() => console.log('Refresh clicked')}
           animation="shine"
           fullWidth={isMobile}
+          smallOnMobile={true}
+          sx={{ maxWidth: { xs: '100%', sm: '180px' } }}
         >
           Refresh Data
         </AnimatedButton>

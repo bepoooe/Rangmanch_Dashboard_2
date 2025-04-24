@@ -7,7 +7,6 @@ import {
   TextField,
   Chip,
   Grid,
-  IconButton,
   MenuItem,
   Select,
   FormControl,
@@ -138,6 +137,7 @@ const ContentRepurposer: React.FC = () => {
               animation="shine"
               color="primary"
               fullWidth
+              smallOnMobile={true}
               disabled={!content || !selectedFormat || isProcessing}
               onClick={handleTransform}
               startIcon={<AutoAwesomeIcon />}

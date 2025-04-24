@@ -30,7 +30,8 @@ interface KeywordSuggestion {
 const SeoOptimizer: React.FC = () => {
   const theme = useTheme();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [keywords, setKeywords] = useState<KeywordSuggestion[]>([
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [keywords, _setKeywords] = useState<KeywordSuggestion[]>([
     { keyword: 'digital marketing', score: 92, volume: '10K-100K', difficulty: 65 },
     { keyword: 'content strategy', score: 88, volume: '1K-10K', difficulty: 45 },
     { keyword: 'SEO optimization', score: 85, volume: '1K-10K', difficulty: 55 },
@@ -94,6 +95,7 @@ const SeoOptimizer: React.FC = () => {
             animation="shine"
             color="primary"
             fullWidth
+            smallOnMobile={true}
             disabled={isAnalyzing}
             onClick={handleAnalyze}
             startIcon={<TrendingUpIcon />}

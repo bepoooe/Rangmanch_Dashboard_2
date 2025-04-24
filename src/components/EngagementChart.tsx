@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Card, CardContent, useTheme } from '@mui/material';
+import { Box, Typography, Card, CardContent, useTheme, useMediaQuery } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -26,6 +26,8 @@ ChartJS.register(
 
 const EngagementChart: React.FC = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   const data = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -70,6 +72,10 @@ const EngagementChart: React.FC = () => {
           usePointStyle: true,
           pointStyle: 'circle',
           padding: 20,
+          boxWidth: 8,
+          font: {
+            size: isMobile ? 10 : 12,
+          },
         },
       },
       tooltip: {
@@ -89,6 +95,8 @@ const EngagementChart: React.FC = () => {
         },
         ticks: {
           color: theme.palette.text.secondary,
+          maxRotation: isMobile ? 45 : 0,
+          minRotation: isMobile ? 45 : 0,
         },
       },
       y: {
@@ -113,8 +121,8 @@ const EngagementChart: React.FC = () => {
         bgcolor: theme.palette.background.paper,
       }}
     >
-      <CardContent sx={{ p: 3 }}>
-        <Box sx={{ mb: 3 }}>
+      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <Box sx={{ mb: { xs: 2, sm: 3 } }}>
           <Typography variant="h6" sx={{ mb: 1 }}>
             Content Performance
           </Typography>
@@ -122,7 +130,11 @@ const EngagementChart: React.FC = () => {
             Engagement and SEO metrics over time
           </Typography>
         </Box>
-        <Box sx={{ height: 360, width: '100%' }}>
+        <Box sx={{ 
+          height: isMobile ? 250 : isTablet ? 300 : 360, 
+          width: '100%',
+          transition: 'height 0.3s ease'
+        }}>
           <Line data={data} options={options} />
         </Box>
       </CardContent>

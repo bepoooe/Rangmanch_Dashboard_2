@@ -12,6 +12,7 @@ import {
   Typography,
   useTheme,
   styled,
+  Tooltip,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -72,14 +73,14 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         boxShadow: 'none',
       }}
     >
-      <Toolbar>
+      <Toolbar sx={{ px: { xs: 1, sm: 2 } }}>
         {onSidebarToggle && (
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={onSidebarToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: { xs: 1, sm: 2 }, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
@@ -102,7 +103,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
         
         <Box
           sx={{
-            display: 'flex',
+            display: { xs: 'none', md: 'flex' },
             alignItems: 'center',
             bgcolor: 'rgba(255, 255, 255, 0.05)',
             borderRadius: 2,
@@ -125,13 +126,47 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
           />
         </Box>
 
-        <IconButton 
-          sx={{ mr: 2 }}
-          onClick={handleNotificationClick}
-        >
-          <Badge badgeContent={notifications.length} color="primary">
-            <NotificationsIcon />
-          </Badge>
+        {/* Search icon for mobile only */}
+        <Tooltip title="Search">
+          <IconButton 
+            sx={{ 
+              mr: { xs: 1, sm: 2 }, 
+              display: { xs: 'flex', md: 'none' } 
+            }}
+          >
+            <SearchIcon />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Notifications">
+          <IconButton 
+            sx={{ mr: { xs: 1, sm: 2 } }}
+            onClick={handleNotificationClick}
+          >
+            <Badge badgeContent={notifications.length} color="primary">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+        </Tooltip>
+
+        {/* Hide settings on mobile */}
+        <Tooltip title="Settings">
+          <IconButton sx={{ mr: { xs: 1, sm: 2 }, display: { xs: 'none', sm: 'flex' } }}>
+            <SettingsIcon />
+          </IconButton>
+        </Tooltip>
+
+        <IconButton onClick={handleProfileClick}>
+          <Avatar
+            sx={{
+              width: { xs: 32, sm: 40 },
+              height: { xs: 32, sm: 40 },
+              bgcolor: theme.palette.primary.main,
+              cursor: 'pointer',
+            }}
+          >
+            A
+          </Avatar>
         </IconButton>
 
         <Menu
@@ -182,21 +217,6 @@ const Header: React.FC<HeaderProps> = ({ onSidebarToggle }) => {
             </Typography>
           </Box>
         </Menu>
-
-        <IconButton sx={{ mr: 2 }}>
-          <SettingsIcon />
-        </IconButton>
-
-        <IconButton onClick={handleProfileClick}>
-          <Avatar
-            sx={{
-              bgcolor: theme.palette.primary.main,
-              cursor: 'pointer',
-            }}
-          >
-            A
-          </Avatar>
-        </IconButton>
 
         <Menu
           anchorEl={anchorEl}

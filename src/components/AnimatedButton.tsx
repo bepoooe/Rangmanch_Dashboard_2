@@ -1,8 +1,9 @@
 import React from 'react';
-import { Button, ButtonProps, styled, keyframes } from '@mui/material';
+import { Button, ButtonProps, styled, keyframes, useMediaQuery, useTheme } from '@mui/material';
 
 interface AnimatedButtonProps extends ButtonProps {
   animation?: 'shine' | 'pulse';
+  smallOnMobile?: boolean;
 }
 
 const shine = keyframes`
@@ -39,9 +40,27 @@ const StyledButton = styled(Button)<AnimatedButtonProps>(({ theme, animation }) 
   },
 }));
 
-const AnimatedButton: React.FC<AnimatedButtonProps> = ({ children, animation = 'shine', ...props }) => {
+const AnimatedButton: React.FC<AnimatedButtonProps> = ({ 
+  children, 
+  animation = 'shine', 
+  smallOnMobile = true,
+  ...props 
+}) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
+  const mobileProps = isMobile && smallOnMobile ? {
+    size: 'small' as const,
+    sx: {
+      ...(props.sx || {}),
+      fontSize: '0.8rem',
+      py: 0.75,
+      minHeight: '36px',
+    }
+  } : {};
+  
   return (
-    <StyledButton animation={animation} {...props}>
+    <StyledButton animation={animation} {...props} {...mobileProps}>
       {children}
     </StyledButton>
   );

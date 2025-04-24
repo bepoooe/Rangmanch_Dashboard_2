@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Card, CardContent, useTheme } from '@mui/material';
+import { Box, Typography, Card, CardContent, useTheme, useMediaQuery } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -26,6 +26,8 @@ ChartJS.register(
 
 const ContentChart: React.FC = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   const data = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -87,6 +89,28 @@ const ContentChart: React.FC = () => {
     },
   };
 
+  // Customize options for mobile
+  const mobileOptions = {
+    ...options,
+    plugins: {
+      ...options.plugins,
+      legend: {
+        ...options.plugins.legend,
+      },
+    },
+    scales: {
+      ...options.scales,
+      x: {
+        ...options.scales.x,
+        ticks: {
+          ...options.scales.x.ticks,
+          maxRotation: 45,
+          minRotation: 45,
+        }
+      }
+    }
+  };
+
   return (
     <Card
       sx={{
@@ -94,8 +118,8 @@ const ContentChart: React.FC = () => {
         bgcolor: theme.palette.background.paper,
       }}
     >
-      <CardContent sx={{ p: 3 }}>
-        <Box sx={{ mb: 3 }}>
+      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <Box sx={{ mb: { xs: 2, sm: 3 } }}>
           <Typography variant="h6" sx={{ mb: 1 }}>
             Content Production
           </Typography>
@@ -103,8 +127,12 @@ const ContentChart: React.FC = () => {
             Monthly content creation metrics
           </Typography>
         </Box>
-        <Box sx={{ height: 360, width: '100%' }}>
-          <Line data={data} options={options} />
+        <Box sx={{ 
+          height: isMobile ? 250 : isTablet ? 300 : 360, 
+          width: '100%',
+          transition: 'height 0.3s ease'
+        }}>
+          <Line data={data} options={isMobile ? mobileOptions : options} />
         </Box>
       </CardContent>
     </Card>

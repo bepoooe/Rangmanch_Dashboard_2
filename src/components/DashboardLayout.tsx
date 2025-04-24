@@ -12,6 +12,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
   const [currentSection, setCurrentSection] = useState('dashboard');
 
@@ -86,14 +87,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           overflow: 'auto',
           display: 'flex',
           flexDirection: 'column',
+          width: '100%',
         }}
       >
         <Toolbar />
         <Container 
           maxWidth="xl" 
+          disableGutters={isSmallMobile}
           sx={{ 
-            py: 3,
-            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 3 },
+            px: { xs: 1, sm: 2, md: 3 },
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
@@ -101,9 +104,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         >
           <Box sx={{ 
             backgroundColor: theme.palette.background.paper,
-            borderRadius: 2,
+            borderRadius: { xs: 1, sm: 2 },
             boxShadow: '0 0 15px rgba(0,0,0,0.05)',
-            p: { xs: 2, sm: 3 },
+            p: { xs: 1.5, sm: 2, md: 3 },
             flex: 1,
             overflow: 'auto',
           }}>

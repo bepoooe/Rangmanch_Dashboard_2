@@ -30,7 +30,8 @@ interface AudienceInsight {
 const TargetAudienceAnalyzer: React.FC = () => {
   const theme = useTheme();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [insights, setInsights] = useState<AudienceInsight[]>([
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [insights, _setInsights] = useState<AudienceInsight[]>([
     { category: 'Age Range', value: '25-34', confidence: 85 },
     { category: 'Interests', value: 'Technology, Business', confidence: 92 },
     { category: 'Location', value: 'Urban Areas', confidence: 78 },
@@ -114,6 +115,7 @@ const TargetAudienceAnalyzer: React.FC = () => {
             animation="shine"
             color="primary"
             fullWidth
+            smallOnMobile={true}
             disabled={isAnalyzing}
             onClick={handleAnalyze}
             startIcon={isAnalyzing ? <CircularProgress size={20} color="inherit" /> : null}
