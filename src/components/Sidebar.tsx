@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Drawer,
   List,
-  IconButton,
   Box,
   useTheme,
   styled,
   Divider,
   Typography,
-  alpha,
   ListItem,
   ListItemButton,
   ListItemIcon,
@@ -22,10 +20,8 @@ import {
   People as AudienceIcon,
   Person as ProfileIcon,
   ExitToApp as SignOutIcon,
-  Menu as MenuIcon,
-  Home as HomeIcon,
 } from '@mui/icons-material';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 interface SidebarProps {
   open: boolean;
@@ -51,22 +47,6 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
   },
 }));
 
-// Styled anchor component
-const StyledAnchor = styled('a')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(1, 2),
-  margin: theme.spacing(0.5, 1),
-  borderRadius: theme.shape.borderRadius,
-  position: 'relative',
-  cursor: 'pointer',
-  textDecoration: 'none',
-  color: 'inherit',
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.action.hover, 0.8),
-  },
-}));
-
 // Main navigation items
 const navigationItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, id: 'dashboard', path: '/' },
@@ -89,7 +69,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   isMobile,
 }) => {
   const theme = useTheme();
-  const location = useLocation();
   const history = useHistory();
 
   const handleClick = (e: React.MouseEvent, item: { id: string; path: string; text: string }) => {
@@ -237,35 +216,26 @@ const Sidebar: React.FC<SidebarProps> = ({
     </Box>
   );
 
+  // Only render either the mobile drawer or the permanent drawer, not both
   if (isMobile) {
     return (
-      <>
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={() => onClose()}
-          edge="start"
-          sx={{ mr: 2, display: { sm: 'none' } }}
-        >
-          <MenuIcon />
-        </IconButton>
-        <StyledDrawer
-          variant="temporary"
-          anchor="left"
-          open={open}
-          onClose={onClose}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-            },
-          }}
-        >
-          {drawerContent}
-        </StyledDrawer>
-      </>
+      <StyledDrawer
+        variant="temporary"
+        anchor="left"
+        open={open}
+        onClose={onClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+          },
+          display: { xs: 'block', sm: 'none' }
+        }}
+      >
+        {drawerContent}
+      </StyledDrawer>
     );
   }
 
@@ -275,6 +245,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       sx={{
         width: drawerWidth,
         flexShrink: 0,
+        display: { xs: 'none', sm: 'block' },
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
