@@ -10,9 +10,10 @@ import Analytics from './pages/Analytics';
 import AudienceInsights from './pages/AudienceInsights';
 import Profile from './pages/Profile';
 import SignIn from './pages/SignIn';
-import Home from './pages/Home';
+// import Home from './pages/Home'; // Commented out as it's not currently used
 import SignUp from './pages/SignUp';
 import Settings from './pages/Settings';
+import SocialDataScraper from './components/SocialDataScraper';
 
 const App: React.FC = () => {
   // For demo purposes, we'll check if user is logged in
@@ -64,6 +65,12 @@ const App: React.FC = () => {
           <Route path="/settings">
             <DashboardLayout>
               <Settings />
+            </DashboardLayout>
+          </Route>
+          
+          <Route path="/scrape">
+            <DashboardLayout>
+              <SocialDataScraper />
             </DashboardLayout>
           </Route>
           

@@ -1,16 +1,16 @@
 import React from 'react';
 import { Box, Grid, Typography, useTheme, useMediaQuery } from '@mui/material';
-import ContentChart from '../components/ContentChart';
-import EngagementChart from '../components/EngagementChart';
-import MiddleMetrics from '../components/MiddleMetrics';
-import ContentRepurposer from '../components/ContentRepurposer';
-import SeoOptimizer from '../components/SeoOptimizer';
-import TargetAudienceAnalyzer from '../components/TargetAudienceAnalyzer';
 import AnimatedButton from '../components/AnimatedButton';
+import SocialDataScraper from '../components/SocialDataScraper';
+import SocialDataVisualizer from '../components/SocialDataVisualizer';
 
 const Dashboard: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const handleRefresh = () => {
+    window.location.reload();
+  };
 
   return (
     <Box>
@@ -23,12 +23,12 @@ const Dashboard: React.FC = () => {
         alignItems: { xs: 'stretch', sm: 'center' }
       }}>
         <Typography variant="h4" component="h1" gutterBottom={isMobile}>
-          Dashboard Overview
+          Social Media Analytics Dashboard
         </Typography>
         <AnimatedButton 
           variant="contained" 
           color="primary"
-          onClick={() => console.log('Refresh clicked')}
+          onClick={handleRefresh}
           animation="shine"
           fullWidth={isMobile}
           smallOnMobile={true}
@@ -40,24 +40,23 @@ const Dashboard: React.FC = () => {
 
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <MiddleMetrics />
+          <Typography variant="h6" gutterBottom>
+            Step 1: Extract Data from Social Media
+          </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            Enter a YouTube URL or Instagram username to scrape their data
+          </Typography>
+          <SocialDataScraper />
         </Grid>
         
-        <Grid item xs={12} lg={6}>
-          <ContentChart />
-        </Grid>
-        <Grid item xs={12} lg={6}>
-          <EngagementChart />
-        </Grid>
-
-        <Grid item xs={12} md={6} lg={4}>
-          <TargetAudienceAnalyzer />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <ContentRepurposer />
-        </Grid>
-        <Grid item xs={12} md={12} lg={4}>
-          <SeoOptimizer />
+        <Grid item xs={12} sx={{ mt: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            Step 2: Analyze Your Social Media Data
+          </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            Visualize the scraped data with interactive charts
+          </Typography>
+          <SocialDataVisualizer />
         </Grid>
       </Grid>
     </Box>

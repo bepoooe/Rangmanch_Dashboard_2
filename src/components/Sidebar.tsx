@@ -20,6 +20,7 @@ import {
   People as AudienceIcon,
   Person as ProfileIcon,
   ExitToApp as SignOutIcon,
+  CloudDownload as ScrapeIcon,
 } from '@mui/icons-material';
 import { useHistory } from 'react-router-dom';
 
@@ -53,6 +54,7 @@ const navigationItems = [
   { text: 'Content Library', icon: <ContentLibraryIcon />, id: 'content-library', path: '/content-library' },
   { text: 'Analytics', icon: <AnalyticsIcon />, id: 'analytics', path: '/analytics' },
   { text: 'Audience Insights', icon: <AudienceIcon />, id: 'audience-insights', path: '/audience-insights' },
+  { text: 'Scrape Data', icon: <ScrapeIcon />, id: 'scrape', path: '/scrape' },
 ];
 
 // User related items

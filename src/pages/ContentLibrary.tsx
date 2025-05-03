@@ -1,177 +1,266 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Box, 
   Typography, 
-  Grid, 
   Card, 
   CardContent, 
   CardMedia, 
+  CardHeader,
+  Avatar,
   IconButton, 
   Chip, 
   TextField, 
   InputAdornment,
   Button,
-  Menu,
-  MenuItem,
   useTheme,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+  Paper,
 } from '@mui/material';
 import { 
   Search as SearchIcon, 
-  Add as AddIcon,
-  MoreVert as MoreVertIcon,
-  FilterList as FilterListIcon,
-  Sort as SortIcon,
+  Refresh as RefreshIcon,
+  ChatBubbleOutline as CommentIcon,
+  ThumbUp as LikeIcon,
+  OpenInNew as OpenInNewIcon,
 } from '@mui/icons-material';
-import AnimatedButton from '../components/AnimatedButton';
-
-// Mock content data
-const contentItems = [
-  {
-    id: 1,
-    title: 'Understanding Your Audience',
-    type: 'Blog Post',
-    thumbnail: 'https://source.unsplash.com/random/300x200?blog',
-    date: '2023-05-15',
-    status: 'Published',
-    views: 1250,
-  },
-  {
-    id: 2,
-    title: 'Content Marketing Strategies',
-    type: 'Video',
-    thumbnail: 'https://source.unsplash.com/random/300x200?marketing',
-    date: '2023-06-22',
-    status: 'Draft',
-    views: 0,
-  },
-  {
-    id: 3,
-    title: 'SEO Best Practices',
-    type: 'Infographic',
-    thumbnail: 'https://source.unsplash.com/random/300x200?seo',
-    date: '2023-04-30',
-    status: 'Published',
-    views: 3420,
-  },
-  {
-    id: 4,
-    title: 'Social Media Growth Hacks',
-    type: 'Blog Post',
-    thumbnail: 'https://source.unsplash.com/random/300x200?social',
-    date: '2023-07-05',
-    status: 'Scheduled',
-    views: 0,
-  },
-  {
-    id: 5,
-    title: 'Creating Engaging Reels',
-    type: 'Video',
-    thumbnail: 'https://source.unsplash.com/random/300x200?video',
-    date: '2023-06-10',
-    status: 'Published',
-    views: 5670,
-  },
-  {
-    id: 6,
-    title: 'Analytics Deep Dive',
-    type: 'Case Study',
-    thumbnail: 'https://source.unsplash.com/random/300x200?analytics',
-    date: '2023-07-18',
-    status: 'Draft',
-    views: 0,
-  },
-];
+import api, { InstagramData } from '../services/api';
 
 const ContentLibrary: React.FC = () => {
   const theme = useTheme();
+  const [loading, setLoading] = useState(false);
+  const [instagramData, setInstagramData] = useState<InstagramData[]>([]);
+  const [selectedInstagramData, setSelectedInstagramData] = useState<string>('');
+  const [instagramDetails, setInstagramDetails] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
-  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedItem, setSelectedItem] = useState<number | null>(null);
-  const [itemAnchorEl, setItemAnchorEl] = useState<null | HTMLElement>(null);
-  
-  // Filter states
-  const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  
-  // Sort state
-  const [sortBy, setSortBy] = useState('date');
-  const [sortDirection, setSortDirection] = useState('desc');
-  
-  const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
-    setFilterAnchorEl(event.currentTarget);
-  };
-  
-  const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {
-    setSortAnchorEl(event.currentTarget);
-  };
-  
-  const handleItemMenuClick = (event: React.MouseEvent<HTMLElement>, id: number) => {
-    setSelectedItem(id);
-    setItemAnchorEl(event.currentTarget);
-  };
-  
-  const handleFilterClose = () => {
-    setFilterAnchorEl(null);
-  };
-  
-  const handleSortClose = () => {
-    setSortAnchorEl(null);
-  };
-  
-  const handleItemMenuClose = () => {
-    setItemAnchorEl(null);
-    setSelectedItem(null);
-  };
-  
-  const handleCreateContent = () => {
-    console.log('Create new content');
-  };
-  
-  // Filter the content items based on search query and filters
-  const filteredItems = contentItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesContentType = selectedContentTypes.length === 0 || selectedContentTypes.includes(item.type);
-    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(item.status);
+
+  // Fetch Instagram details
+  const fetchInstagramDetails = useCallback(async (filePath: string) => {
+    if (!filePath) {
+      console.warn('No Instagram file path provided');
+      return;
+    }
     
-    return matchesSearch && matchesContentType && matchesStatus;
-  });
-  
-  // Sort the filtered items
-  const sortedItems = [...filteredItems].sort((a, b) => {
-    if (sortBy === 'date') {
-      return sortDirection === 'asc' 
-        ? new Date(a.date).getTime() - new Date(b.date).getTime()
-        : new Date(b.date).getTime() - new Date(a.date).getTime();
-    } else if (sortBy === 'title') {
-      return sortDirection === 'asc'
-        ? a.title.localeCompare(b.title)
-        : b.title.localeCompare(a.title);
-    } else if (sortBy === 'views') {
-      return sortDirection === 'asc'
-        ? a.views - b.views
-        : b.views - a.views;
+    try {
+      console.log('Fetching Instagram data from:', filePath);
+      setLoading(true);
+      const data = await api.getDataFile(filePath);
+      
+      // Check data validity
+      if (!data || !Array.isArray(data)) {
+        console.error('Instagram data is invalid');
+        setInstagramDetails([]);
+        return;
+      }
+      
+      setInstagramDetails(data);
+      console.log('Instagram data loaded:', data.length, 'items');
+    } catch (error) {
+      console.error('Failed to fetch Instagram details:', error);
+      setInstagramDetails([]);
+    } finally {
+      setLoading(false);
     }
-    return 0;
-  });
-  
-  // Get all unique content types
-  const contentTypes = Array.from(new Set(contentItems.map(item => item.type)));
-  
-  // Get all unique statuses
-  const statuses = Array.from(new Set(contentItems.map(item => item.status)));
-  
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Published':
-        return theme.palette.success.main;
-      case 'Draft':
-        return theme.palette.warning.main;
-      case 'Scheduled':
-        return theme.palette.info.main;
-      default:
-        return theme.palette.primary.main;
+  }, []);
+
+  // Fetch data list
+  const fetchDataList = useCallback(async () => {
+    setLoading(true);
+    try {
+      console.log('Fetching social media data list...');
+      const dataList = await api.listData();
+      
+      if (dataList.instagram && Array.isArray(dataList.instagram)) {
+        // Process Instagram data for display
+        const processedInstagramData = dataList.instagram.map(item => {
+          // Format username with @ symbol
+          const displayName = item.username ? `@${item.username}` : 'Unknown Account';
+          
+          return {
+            ...item,
+            display_name: displayName
+          };
+        });
+        
+        setInstagramData(processedInstagramData);
+        
+        // Auto-select first item
+        if (processedInstagramData.length > 0 && !selectedInstagramData) {
+          setSelectedInstagramData(processedInstagramData[0].file_path);
+          fetchInstagramDetails(processedInstagramData[0].file_path);
+        }
+      } else {
+        setInstagramData([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data list:', error);
+    } finally {
+      setLoading(false);
     }
+  }, [fetchInstagramDetails, selectedInstagramData]);
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchDataList();
+  }, [fetchDataList]);
+
+  // Handle Instagram data selection
+  const handleInstagramDataChange = (event: SelectChangeEvent) => {
+    const value = event.target.value;
+    setSelectedInstagramData(value);
+    fetchInstagramDetails(value);
+  };
+
+  // Filter Instagram comments
+  const getInstagramComments = () => {
+    if (!instagramDetails.length) return [];
+    
+    // Extract all comments from posts
+    const allComments: any[] = [];
+    
+    instagramDetails.forEach(post => {
+      // Check for comments in different possible locations
+      let comments: any[] = [];
+      
+      // First try latestComments which is the primary format for the data
+      if (post.latestComments && Array.isArray(post.latestComments)) {
+        comments = post.latestComments;
+      } 
+      // Fallback to other possible formats
+      else if (post.comments && Array.isArray(post.comments)) {
+        comments = post.comments;
+      }
+      else if (post.edges && post.edges.comments && Array.isArray(post.edges.comments)) {
+        comments = post.edges.comments;
+      }
+      
+      if (comments.length > 0) {
+        // Add post info to each comment
+        const postComments = comments.map((comment: any) => ({
+          ...comment,
+          postCaption: post.caption || post.edge_media_to_caption?.edges?.[0]?.node?.text || '',
+          postUrl: post.permalink || post.url || '',
+          postImage: post.display_url || post.thumbnail_url || post.thumbnail || '',
+          postId: post.id || post.shortcode || '',
+        }));
+        
+        allComments.push(...postComments);
+      }
+    });
+    
+    // Sort by like count if available, otherwise by time
+    return allComments.sort((a, b) => {
+      const aLikes = a.likeCount || a.like_count || a.likesCount || 0;
+      const bLikes = b.likeCount || b.like_count || b.likesCount || 0;
+      return bLikes - aLikes;
+    });
+  };
+
+  // Get filtered Instagram comments based on search
+  const filteredInstagramComments = () => {
+    const comments = getInstagramComments();
+    
+    if (!searchQuery) return comments;
+    
+    return comments.filter(comment => {
+      const text = comment.text || comment.content || '';
+      const username = comment.ownerUsername || comment.username || comment.owner?.username || '';
+      
+      return (
+        text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        username.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    });
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  // Render Instagram comment
+  const renderInstagramComment = (comment: any) => {
+    // Extract comment text based on available properties
+    const commentText = comment.text || comment.content || 'No text';
+    
+    // Extract username from different possible locations
+    const username = comment.ownerUsername || comment.username || comment.owner?.username || 'anonymous';
+    
+    // Extract profile image from different possible locations
+    const userImage = comment.ownerProfilePicUrl || comment.profile_pic_url || comment.owner?.profile_pic_url || '';
+    
+    // Extract like count from different possible locations
+    const likeCount = comment.likesCount || comment.likeCount || comment.like_count || 0;
+    
+    // Extract timestamp from different possible locations
+    const timestamp = comment.timestamp || comment.created_at || '';
+    
+    // Post information
+    const postCaption = comment.postCaption || '';
+    const postUrl = comment.postUrl || '';
+    const postImage = comment.postImage || '';
+    
+    return (
+      <Card key={comment.id || username + timestamp} sx={{ mb: 2, backgroundColor: theme.palette.background.paper }}>
+        <CardHeader
+          avatar={
+            <Avatar src={userImage} aria-label="commenter">
+              {username.charAt(0)}
+            </Avatar>
+          }
+          title={`@${username}`}
+          subheader={formatDate(timestamp)}
+          action={
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Chip 
+                icon={<LikeIcon />} 
+                label={likeCount} 
+                size="small" 
+                sx={{ mr: 1 }} 
+              />
+              {postUrl && (
+                <IconButton size="small" href={postUrl} target="_blank" aria-label="open post">
+                  <OpenInNewIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
+          }
+        />
+        {postImage && (
+          <CardMedia
+            component="img"
+            height="140"
+            image={postImage}
+            alt="Post image"
+            sx={{ objectFit: 'contain', bgcolor: 'black' }}
+          />
+        )}
+        <CardContent>
+          {postCaption && (
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              Post caption: {postCaption.length > 100 ? postCaption.substring(0, 100) + '...' : postCaption}
+            </Typography>
+          )}
+          <Typography variant="body1">{commentText}</Typography>
+        </CardContent>
+      </Card>
+    );
   };
 
   return (
@@ -185,23 +274,21 @@ const ContentLibrary: React.FC = () => {
         alignItems: { xs: 'stretch', sm: 'center' }
       }}>
         <Typography variant="h4" component="h1">
-          Content Library
+          Instagram Comments Library
         </Typography>
         
-        <AnimatedButton 
-          variant="contained" 
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleCreateContent}
-          animation="shine"
+        <Button 
+          variant="outlined" 
+          startIcon={<RefreshIcon />}
+          onClick={fetchDataList}
         >
-          Create Content
-        </AnimatedButton>
+          Refresh Data
+        </Button>
       </Box>
       
-      <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+      <Box sx={{ mb: 4 }}>
         <TextField
-          placeholder="Search content..."
+          placeholder="Search comments..."
           variant="outlined"
           fullWidth
           value={searchQuery}
@@ -213,246 +300,77 @@ const ContentLibrary: React.FC = () => {
               </InputAdornment>
             ),
           }}
-          sx={{ flexGrow: 1 }}
         />
-        
-        <Button 
-          variant="outlined" 
-          startIcon={<FilterListIcon />}
-          onClick={handleFilterClick}
-        >
-          Filter
-        </Button>
-        
-        <Button 
-          variant="outlined" 
-          startIcon={<SortIcon />}
-          onClick={handleSortClick}
-        >
-          Sort
-        </Button>
-        
-        <Menu
-          anchorEl={filterAnchorEl}
-          open={Boolean(filterAnchorEl)}
-          onClose={handleFilterClose}
-        >
-          <MenuItem disabled>
-            <Typography variant="subtitle2">Content Type</Typography>
-          </MenuItem>
-          
-          {contentTypes.map(type => (
-            <MenuItem key={type} onClick={() => {
-              if (selectedContentTypes.includes(type)) {
-                setSelectedContentTypes(selectedContentTypes.filter(t => t !== type));
-              } else {
-                setSelectedContentTypes([...selectedContentTypes, type]);
-              }
-            }}>
-              <Box sx={{ 
-                width: '100%', 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                color: selectedContentTypes.includes(type) ? theme.palette.primary.main : 'inherit'
-              }}>
-                {type}
-                {selectedContentTypes.includes(type) && '✓'}
-              </Box>
-            </MenuItem>
-          ))}
-          
-          <MenuItem sx={{ borderTop: `1px solid ${theme.palette.divider}` }} disabled>
-            <Typography variant="subtitle2">Status</Typography>
-          </MenuItem>
-          
-          {statuses.map(status => (
-            <MenuItem key={status} onClick={() => {
-              if (selectedStatuses.includes(status)) {
-                setSelectedStatuses(selectedStatuses.filter(s => s !== status));
-              } else {
-                setSelectedStatuses([...selectedStatuses, status]);
-              }
-            }}>
-              <Box sx={{ 
-                width: '100%', 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                color: selectedStatuses.includes(status) ? theme.palette.primary.main : 'inherit'
-              }}>
-                {status}
-                {selectedStatuses.includes(status) && '✓'}
-              </Box>
-            </MenuItem>
-          ))}
-        </Menu>
-        
-        <Menu
-          anchorEl={sortAnchorEl}
-          open={Boolean(sortAnchorEl)}
-          onClose={handleSortClose}
-        >
-          <MenuItem onClick={() => {
-            setSortBy('date');
-            setSortDirection('desc');
-            handleSortClose();
-          }}>
-            <Box sx={{ 
-              width: '100%', 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              color: sortBy === 'date' && sortDirection === 'desc' ? theme.palette.primary.main : 'inherit'
-            }}>
-              Newest First
-              {sortBy === 'date' && sortDirection === 'desc' && '✓'}
-            </Box>
-          </MenuItem>
-          
-          <MenuItem onClick={() => {
-            setSortBy('date');
-            setSortDirection('asc');
-            handleSortClose();
-          }}>
-            <Box sx={{ 
-              width: '100%', 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              color: sortBy === 'date' && sortDirection === 'asc' ? theme.palette.primary.main : 'inherit'
-            }}>
-              Oldest First
-              {sortBy === 'date' && sortDirection === 'asc' && '✓'}
-            </Box>
-          </MenuItem>
-          
-          <MenuItem onClick={() => {
-            setSortBy('title');
-            setSortDirection('asc');
-            handleSortClose();
-          }}>
-            <Box sx={{ 
-              width: '100%', 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              color: sortBy === 'title' && sortDirection === 'asc' ? theme.palette.primary.main : 'inherit'
-            }}>
-              Title (A-Z)
-              {sortBy === 'title' && sortDirection === 'asc' && '✓'}
-            </Box>
-          </MenuItem>
-          
-          <MenuItem onClick={() => {
-            setSortBy('views');
-            setSortDirection('desc');
-            handleSortClose();
-          }}>
-            <Box sx={{ 
-              width: '100%', 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              color: sortBy === 'views' && sortDirection === 'desc' ? theme.palette.primary.main : 'inherit'
-            }}>
-              Most Views
-              {sortBy === 'views' && sortDirection === 'desc' && '✓'}
-            </Box>
-          </MenuItem>
-        </Menu>
       </Box>
-      
-      <Grid container spacing={3}>
-        {sortedItems.map(item => (
-          <Grid item xs={12} sm={6} md={4} key={item.id}>
-            <Card sx={{ 
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: `0 8px 24px rgba(0, 0, 0, 0.15)`,
-              },
-            }}>
-              <Box sx={{ position: 'relative' }}>
-                <CardMedia
-                  component="img"
-                  height="160"
-                  image={item.thumbnail}
-                  alt={item.title}
-                />
-                <Chip 
-                  label={item.type}
-                  size="small"
-                  sx={{ 
-                    position: 'absolute', 
-                    top: 10, 
-                    left: 10,
-                    bgcolor: 'rgba(0, 0, 0, 0.6)',
-                    color: 'white',
-                  }}
-                />
-                <Chip 
-                  label={item.status}
-                  size="small"
-                  sx={{ 
-                    position: 'absolute', 
-                    top: 10, 
-                    right: 10,
-                    bgcolor: `${getStatusColor(item.status)}80`,
-                    color: 'white',
-                  }}
-                />
-                <IconButton 
-                  sx={{ 
-                    position: 'absolute', 
-                    bottom: 5, 
-                    right: 5,
-                    bgcolor: 'rgba(0, 0, 0, 0.5)',
-                    color: 'white',
-                    '&:hover': {
-                      bgcolor: 'rgba(0, 0, 0, 0.7)',
-                    }
-                  }}
-                  onClick={(e) => handleItemMenuClick(e, item.id)}
+
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', p: 5 }}>
+          <CircularProgress sx={{ mb: 2 }} />
+          <Typography color="text.secondary">Loading data...</Typography>
+        </Box>
+      ) : (
+        <>
+          {instagramData.length === 0 ? (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>No Instagram data available</Typography>
+              <Typography color="text.secondary" sx={{ mb: 3 }}>
+                Please scrape some data using the Instagram scraper first.
+              </Typography>
+              <Button 
+                variant="outlined" 
+                color="primary"
+                onClick={() => window.location.href = '/'}
+              >
+                Go to Dashboard
+              </Button>
+            </Box>
+          ) : (
+            <>
+              <FormControl fullWidth sx={{ mb: 3 }}>
+                <InputLabel id="instagram-data-select-label">Select Instagram Account</InputLabel>
+                <Select
+                  labelId="instagram-data-select-label"
+                  id="instagram-data-select"
+                  value={selectedInstagramData}
+                  label="Select Instagram Account"
+                  onChange={handleInstagramDataChange}
                 >
-                  <MoreVertIcon />
-                </IconButton>
-              </Box>
-              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                <Typography variant="h6" component="h2" gutterBottom noWrap>
-                  {item.title}
-                </Typography>
-                <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    {new Date(item.date).toLocaleDateString()}
+                  {instagramData.map((data, index) => (
+                    <MenuItem key={index} value={data.file_path}>
+                      {data.display_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {instagramDetails.length > 0 ? (
+                <Box>
+                  <Typography variant="h6" gutterBottom>
+                    Top Comments
                   </Typography>
-                  {item.status === 'Published' && (
-                    <Typography variant="body2" color="text.secondary">
-                      {item.views.toLocaleString()} views
-                    </Typography>
+                  
+                  {filteredInstagramComments().length > 0 ? (
+                    filteredInstagramComments().slice(0, 20).map(comment => renderInstagramComment(comment))
+                  ) : (
+                    <Paper sx={{ p: 4, textAlign: 'center' }}>
+                      <CommentIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 2 }} />
+                      <Typography color="text.secondary">
+                        No comments found for this account or search query.
+                      </Typography>
+                    </Paper>
                   )}
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-      
-      <Menu
-        anchorEl={itemAnchorEl}
-        open={Boolean(itemAnchorEl)}
-        onClose={handleItemMenuClose}
-      >
-        <MenuItem onClick={handleItemMenuClose}>
-          Edit
-        </MenuItem>
-        <MenuItem onClick={handleItemMenuClose}>
-          Duplicate
-        </MenuItem>
-        <MenuItem onClick={handleItemMenuClose}>
-          Share
-        </MenuItem>
-        <MenuItem onClick={handleItemMenuClose} sx={{ color: theme.palette.error.main }}>
-          Delete
-        </MenuItem>
-      </Menu>
+              ) : (
+                <Box sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography color="text.secondary">
+                    Select an Instagram account to view comments
+                  </Typography>
+                </Box>
+              )}
+            </>
+          )}
+        </>
+      )}
     </Box>
   );
 };
